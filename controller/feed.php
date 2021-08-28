@@ -68,7 +68,6 @@ class feed
 		// Other useful class variables. The values assigned to these largely come from the URI submitted when the URI is checked for errors and are used across multiple functions.
 		$this->board_url = NULL;
 		$this->bookmarks_only = NULL;
-		$this->date_limit = NULL;
 		$this->encrypted_pswd = NULL;
 		$this->errors = array();
 		$this->feed_style = NULL;
@@ -391,7 +390,7 @@ class feed
 			// Create the first post only SQL stubs
 			if ($this->first_post_only)
 			{
-				$new_topics_sql = " AND t.topic_time > $this->date_limit ";
+				$new_topics_sql = " AND t.topic_time > $this->time_limit ";
 				$topics_posts_join_sql = ' t.topic_first_post_id = p.post_id AND t.forum_id = f.forum_id';
 			}
 
@@ -758,8 +757,8 @@ class feed
 							{
 								$this->items_in_feed++;
 								if 	(
-									($this->date_limit == 0) || // No date range is set OR
-									($feed_item->get_date('U') >= $this->date_limit)	// Article is within post date range limit set
+									($this->time_limit == 0) || // No date range is set OR
+									($feed_item->get_date('U') >= $this->time_limit)	// Article is within post date range limit set
 								)
 								{
 									// Add the external item to the feed
@@ -1074,7 +1073,7 @@ class feed
 			),
 
 			'WHERE'     =>  "u.user_id = b.user_id AND b.topic_id = t.topic_id 
-								AND t.topic_last_post_time > $this->date_limit
+								AND t.topic_last_post_time > $this->time_limit
 								AND b.user_id = $this->user_id",
 		);
 
@@ -1568,12 +1567,12 @@ class feed
 		{
 
 			// Determine if a new topic
-			$new_topic = ($row['topic_time'] > $this->date_limit);
+			$new_topic = ($row['topic_time'] > $this->time_limit);
 
 			// Is this topic or forum associated with the post being tracked by this user? If so, exclude the post if the topic track
 			// time or forum track time is before the earliest time allowed for a post.
-			if (((!is_null($row['forum_mark_time']) && ($row['forum_mark_time']) < $this->date_limit)) ||
-				((!is_null($row['topic_mark_time']) && ($row['topic_mark_time']) < $this->date_limit)))
+			if (((!is_null($row['forum_mark_time']) && ($row['forum_mark_time']) < $this->time_limit)) ||
+				((!is_null($row['topic_mark_time']) && ($row['topic_mark_time']) < $this->time_limit)))
 			{
 				$include_post = false;
 			}
